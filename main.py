@@ -3,8 +3,6 @@ import math
 import time
 sin:list = [math.sin(math.radians(a)) for a in range(360)]
 cos:list = [math.cos(math.radians(a)) for a in range(360)]
-print(sin[1])
-print(cos[1])
 
 
 class Vertex:
@@ -93,7 +91,9 @@ class Player:
             self.x += dy
             self.y -= dx
         if self.a > 359:
-            self.a = self.a % 360
+            self.a = self.a - 360
+        if self.a < 0:
+            self.a = self.a + 360
         self.c.update(self.x,self.y,self.z,self.a)
 
 
@@ -132,13 +132,11 @@ def draw_wall(x1,x2,b1,b2,t1,t2,c,w):
     dx = x2-x1
     if dx == 0: dx = 1
     xs = x1
-    for x in range(x1,x2):
+    for x in range(max(x1,0),min(x2,Main_Camera.sizex)):
         y1 = dyb*(x-xs+0.5)/dx+b1
         y2 = dyt*(x-xs+0.5)/dx+t1
-        for y in range(int(y2),int(y1)):
+        for y in range(max(int(y2),0),min(int(y1),Main_Camera.sizey)):
             w.set_at((x,y),c)
-        w.set_at((x,int(y1)),c)
-        w.set_at((x,int(y2)),c)
 
 def render_seg(seg:int, subsector:int,camera:Camera, window:pygame.Surface):
     seg_object = Segs[seg]
@@ -177,7 +175,7 @@ def render_subsector(subsector:int,camera:Camera,window:pygame.Surface):
         render_seg(seg,subsector,camera,window)
 
 
-window = pygame.display.set_mode((200, 200),pygame.SCALED)
+window = pygame.display.set_mode((Main_Camera.sizex, Main_Camera.sizey),pygame.SCALED)
 
 # Setting name for window
 pygame.display.set_caption('Doom like game')
