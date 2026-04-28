@@ -1,6 +1,7 @@
 import pygame
 import math
 import time
+from PIL import Image
 sin:list = [math.sin(math.radians(a)) for a in range(360)]
 cos:list = [math.cos(math.radians(a)) for a in range(360)]
 
@@ -107,36 +108,23 @@ SubSectors:list[SubSector] = [SubSector(0,[0,1])]
 Main_Camera:Camera = Camera(0,0,0,0,200,200,200)
 P:Player = Player(0,0,0,0,Main_Camera)
 
-def get_texture_color(texture:int)-> tuple[int,int,int]:
-    match texture:
-        case 0:
-            return (0,0,0)
-        case 1:
-            return (255,255,255)
-        case 2:
-            return (255,0,0)
-        case 3:
-            return (0,255,0)
-        case 4:
-            return (0,0,255)
-        case 5:
-            return (255,255,0)
-        case 6: 
-            return (0,255,255)
-        case 7:
-            return (255,0,255)
-
-def draw_wall(x1,x2,b1,b2,t1,t2,c,w):
-    dyb = b2-b1
-    dyt = t2-t1
-    dx = x2-x1
-    if dx == 0: dx = 1
-    xs = x1
-    for x in range(max(x1,0),min(x2,Main_Camera.sizex)):
-        y1 = dyb*(x-xs+0.5)/dx+b1
-        y2 = dyt*(x-xs+0.5)/dx+t1
-        for y in range(max(int(y2),0),min(int(y1),Main_Camera.sizey)):
-            w.set_at((x,y),c)
+def draw_wall(x1,x2,b1,b2,t1,t2,t,w):
+    with Image.open('textures/429.png') as im:
+        imw,imh = im.size
+        rgb_im = im.convert('RGB')
+        dyb = b2-b1
+        dyt = t2-t1
+        dx = x2-x1
+        if dx == 0: dx = 1
+        xs = x1
+        for x in range(max(x1,0),min(x2,Main_Camera.sizex)):
+            y1 = dyb*(x-xs+0.5)/dx+b1
+            y2 = dyt*(x-xs+0.5)/dx+t1
+            tx = int(((x-xs)/dx)*imw)
+            for y in range(max(int(y2),0),min(int(y1),Main_Camera.sizey)):
+                ty = ((y-y1)/((y1-y2))+1)*imh
+                c = rgb_im.getpixel((tx,ty))
+                w.set_at((x,y),c)
 
 def render_seg(seg:int, subsector:int,camera:Camera, window:pygame.Surface):
     seg_object = Segs[seg]
@@ -165,7 +153,7 @@ def render_seg(seg:int, subsector:int,camera:Camera, window:pygame.Surface):
         v2_bottom = int(bottom*200/v2.y+SH2)
         print(v1x,v1_bottom,v2x,v2_bottom)
         
-        draw_wall(v1x,v2x,v1_bottom,v2_bottom,v1_top,v2_top,get_texture_color(linedef_object.texture_middle),window)
+        draw_wall(v1x,v2x,v1_bottom,v2_bottom,v1_top,v2_top,linedef_object.texture_middle,window)
         
 
 
